@@ -1,0 +1,6 @@
+{
+  "name": "SynthIQ - Platformă de Automatizare AI Autonomă",
+  "description": "Platformă enterprise de orchestrare AI și fluxuri de lucru autonome pentru echipe de inginerie de înaltă performanță.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
