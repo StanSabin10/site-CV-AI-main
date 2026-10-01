@@ -38,7 +38,9 @@ npm install
 npm run dev
 ```
 
-Aplicația va porni pe http://localhost:3000.
+Aplicația va porni pe:
+
+- http://localhost:3000
 
 ### Build pentru producție
 
@@ -64,9 +66,13 @@ VITE_WEB3FORMS_KEY=your_web3forms_access_key_here
 
 ```text
 src/
-   App.tsx
-   main.tsx
-   index.css
+  App.tsx
+  main.tsx
+  index.css
 public/
-   cv.html
+  cv.html
 ```
+
+## Status
+
+Repo-ul este actualizat și validat pentru funcționare locală cu Vite.

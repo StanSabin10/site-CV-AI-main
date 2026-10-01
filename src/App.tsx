@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Github, 
   Linkedin, 
@@ -21,7 +21,9 @@ import {
   Sparkles,
   Send,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { 
   motion, 
@@ -39,10 +41,6 @@ import profilePhoto from '../123.png';
 type Language = 'ro' | 'en';
 type Theme = 'dark' | 'light';
 
-type ProjectCategory = 'Toate' | 'Full-Stack' | 'Frontend' | 'AI / Automatizări';
-
-const CATEGORIES: ProjectCategory[] = ['Toate', 'Full-Stack', 'Frontend', 'AI / Automatizări'];
-
 interface ContactFormData {
   name: string;
   email: string;
@@ -56,7 +54,6 @@ interface Project {
   title: string;
   type: 'Web' | 'API' | 'Tool';
   category: string;
-  categoryTag: Exclude<ProjectCategory, 'Toate'>;
   role: string;
   desc: { ro: string; en: string };
   highlights: { ro: string[]; en: string[] };
@@ -70,7 +67,6 @@ const PROJECTS: Project[] = [
     title: 'DevTask',
     type: 'Web',
     category: 'Full-Stack Web App',
-    categoryTag: 'Full-Stack',
     role: 'Full-Stack Developer',
     desc: {
       ro: 'Aplicație web pentru organizarea sarcinilor în echipe agile. Dispune de un board Kanban interactiv, sincronizare în timp real a stării și alerte automate în Google Chat prin 1P API.',
@@ -88,7 +84,6 @@ const PROJECTS: Project[] = [
     title: 'CloudStore API',
     type: 'API',
     category: 'Backend & REST API',
-    categoryTag: 'Full-Stack',
     role: 'Backend Developer',
     desc: {
       ro: 'Backend REST pentru platforme e-commerce, construit cu tranzacții PostgreSQL sigure (ACID), autentificare JWT, procesare de comenzi și cache Redis pentru latență redusă.',
@@ -106,7 +101,6 @@ const PROJECTS: Project[] = [
     title: 'SynthIQ UI Kit',
     type: 'Web',
     category: 'Interfețe Moderne & Design System',
-    categoryTag: 'Frontend',
     role: 'Frontend Developer',
     desc: {
       ro: 'Sistem de componente UI rapide, accesibile și responsive, construit cu React 19, Tailwind CSS și micro-interacțiuni fluide Framer Motion.',
@@ -128,28 +122,28 @@ const STACK_DATA = [
     title: { ro: 'Frontend Engineering', en: 'Frontend Engineering' },
     desc: { ro: 'Interfețe rapide, fluide și accesibile.', en: 'Fast, fluid, and accessible interfaces.' },
     icon: Layers,
-    items: ['React 19', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML5', 'CSS3', 'Zustand']
+    items: ['React 19', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML5', 'CSS3']
   },
   {
     id: 'backend',
     title: { ro: 'Backend & APIs', en: 'Backend & APIs' },
     desc: { ro: 'Arhitectură scalabilă, sigură și modulară.', en: 'Scalable, secure, and modular architecture.' },
     icon: Server,
-    items: ['Node.js', 'Express', 'REST APIs', 'WebSockets', 'JWT', 'Google 1P API']
+    items: ['Node.js', 'Express', 'REST APIs', 'WebSockets', 'JWT']
   },
   {
     id: 'databases',
     title: { ro: 'Baze de Date & Cache', en: 'Databases & Storage' },
     desc: { ro: 'Garanții ACID, tranzacții și viteză.', en: 'ACID guarantees, transactions, and cache.' },
     icon: Database,
-    items: ['PostgreSQL', 'Redis', 'MongoDB', 'SQL / ACID']
+    items: ['PostgreSQL', 'MongoDB', 'SQL / ACID']
   },
   {
     id: 'tools',
     title: { ro: 'Unelte & DevOps', en: 'Tools & DevOps' },
     desc: { ro: 'Containerizare, CI/CD și automatizare.', en: 'Containers, CI/CD, and automation.' },
     icon: Wrench,
-    items: ['Git', 'GitHub', 'Docker', 'Vite', 'Linux CLI', 'Postman']
+    items: ['Git', 'GitHub', 'Docker', 'Vite']
   }
 ];
 
@@ -368,16 +362,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Category filter state
-  const [selectedCategory, setSelectedCategory] = useState<ProjectCategory>('Toate');
-
-  const filteredProjects = useMemo(() => {
-    if (selectedCategory === 'Toate') {
-      return PROJECTS;
-    }
-    return PROJECTS.filter((p) => p.categoryTag === selectedCategory);
-  }, [selectedCategory]);
-
   // Contact form state
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
@@ -458,17 +442,21 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen text-zinc-800 dark:text-zinc-200 font-sans selection:bg-indigo-500/20 selection:text-indigo-900 dark:selection:text-indigo-200 antialiased relative transition-colors duration-200 bg-grid-pattern">
+    <div className="portfolio-shell min-h-screen text-zinc-800 dark:text-zinc-200 font-sans selection:bg-indigo-500/20 selection:text-indigo-900 dark:selection:text-indigo-200 antialiased relative transition-colors duration-200 bg-grid-pattern">
       
-      {/* Dynamic Ambient Background with drifting luminous aura */}
-      <div className="fixed inset-0 ambient-glow pointer-events-none -z-10" />
+      {/* Ambient lighting stays behind the interactive content. */}
+      <div className="ambient-glow fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <span className="ambient-blob ambient-blob-violet" />
+        <span className="ambient-blob ambient-blob-blue" />
+        <span className="ambient-blob ambient-blob-cyan" />
+      </div>
 
       {/* FLOATING GLASSMORPHISM NAVBAR */}
-    <header className="fixed top-4 inset-x-0 z-50 max-w-5xl mx-auto px-4 sm:px-6">
-  <div className="glass-nav rounded-2xl px-5 sm:px-6 h-16 flex items-center justify-between transition-all duration-300">
-    <a href="#hero" className="flex items-center gap-3 group">
-      <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-zinc-900/90 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm flex items-center justify-center overflow-hidden group-hover:border-indigo-500/50 group-hover:shadow-indigo-500/10 transition-all duration-300 shrink-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 via-purple-500/15 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <header className="fixed top-4 inset-x-0 z-50 max-w-6xl mx-auto px-4 sm:px-6">
+  <div className="glass-nav rounded-full px-4 sm:px-5 h-14 flex items-center justify-between transition-all duration-300 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.45)]">
+    <a href="#hero" className="flex items-center gap-3 group min-w-0">
+      <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 via-violet-500/15 to-cyan-400/15 border border-zinc-200/80 dark:border-zinc-700/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] flex items-center justify-center overflow-hidden group-hover:border-indigo-400/60 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all duration-300 shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/25 via-purple-500/10 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         <svg
           className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 relative z-10"
@@ -494,12 +482,12 @@ export default function App() {
         </svg>
       </div>
 
-      <div className="flex flex-col">
-        <span className="font-bold text-zinc-900 dark:text-white text-sm sm:text-base group-hover:text-purple-400 transition-colors leading-snug">
-          Sabin Stan
+      <div className="flex flex-col min-w-0 gap-1">
+        <span className="font-extrabold text-[13px] sm:text-sm text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-300 transition-colors leading-none tracking-[0.04em]">
+          SABIN <span className="text-indigo-600 dark:text-indigo-300">STAN</span>
         </span>
-        <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono leading-none mt-0.5 hidden sm:inline-block">
-          Full-Stack Developer
+        <span className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono uppercase leading-none tracking-[0.12em]">
+          WEB / API / AI
         </span>
       </div>
     </a>
@@ -512,10 +500,10 @@ export default function App() {
           <a
             key={item.id}
             href={`#${item.id}`}
-            className={`bg-transparent px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-white/5 ${
+            className={`px-3 py-2 rounded-full transition-all duration-200 ${
               isActive
-                ? 'text-zinc-900 dark:text-white font-semibold'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white/70 dark:bg-white/8 text-zinc-900 dark:text-white shadow-[0_4px_16px_-8px_rgba(99,102,241,0.45)] ring-1 ring-zinc-200/80 dark:ring-white/10'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
             }`}
           >
             {item.label}
@@ -524,14 +512,38 @@ export default function App() {
       })}
     </nav>
 
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="hidden sm:flex items-center rounded-full border border-zinc-200/70 dark:border-white/10 bg-white/40 dark:bg-white/[0.03] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
+        {(['ro', 'en'] as const).map((language) => (
+          <button
+            key={language}
+            type="button"
+            onClick={() => changeLang(language)}
+            aria-pressed={lang === language}
+            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase transition-all ${lang === language ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}`}
+          >
+            {language}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200/70 dark:border-white/10 bg-white/40 dark:bg-white/[0.03] text-zinc-500 dark:text-zinc-400 transition-all hover:bg-white/80 dark:hover:bg-white/[0.08] hover:text-zinc-900 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
+        aria-label={theme === 'dark' ? (lang === 'ro' ? 'Activează tema luminoasă' : 'Switch to light theme') : (lang === 'ro' ? 'Activează tema întunecată' : 'Switch to dark theme')}
+        title={theme === 'dark' ? (lang === 'ro' ? 'Tema luminoasă' : 'Light theme') : (lang === 'ro' ? 'Tema întunecată' : 'Dark theme')}
+      >
+        {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      </button>
+
       <motion.a
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
         href="/cv.html"
         target="_blank"
         rel="noopener noreferrer"
-        className="px-4 py-2 text-xs font-semibold rounded-xl bg-white text-slate-950 hover:bg-slate-200 transition-colors hidden sm:inline-flex items-center gap-1.5"
+        className="px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-white to-slate-100 text-slate-950 hover:from-slate-50 hover:to-slate-200 transition-colors hidden sm:inline-flex items-center gap-1.5 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.8)] border border-zinc-200/80"
       >
         <FileText className="w-3.5 h-3.5" />
         <span>CV (PDF)</span>
@@ -571,6 +583,30 @@ export default function App() {
           </a>
         ))}
 
+        <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+          <div className="flex items-center rounded-full border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
+            {(['ro', 'en'] as const).map((language) => (
+              <button
+                key={language}
+                type="button"
+                onClick={() => changeLang(language)}
+                aria-pressed={lang === language}
+                className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase transition-colors ${lang === language ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-200'}`}
+              >
+                {language}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-white"
+            aria-label={theme === 'dark' ? (lang === 'ro' ? 'Activează tema luminoasă' : 'Switch to light theme') : (lang === 'ro' ? 'Activează tema întunecată' : 'Switch to dark theme')}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+        </div>
+
         <div className="pt-2 border-t border-zinc-200/70 dark:border-white/10">
           <a
             href="/cv.html"
@@ -589,7 +625,7 @@ export default function App() {
 </header>
 
       {/* MAIN CONTAINER */}
-      <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-28 sm:pt-36 pb-12 sm:pb-20 space-y-28 sm:space-y-36">
+      <main className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-32 sm:pt-40 pb-12 sm:pb-20 space-y-28 sm:space-y-36">
 
         {/* 1. HERO SECTION — Modern Developer Intro */}
         <section id="hero" className="scroll-mt-28">
@@ -613,10 +649,10 @@ export default function App() {
 
                 {/* Name & Title */}
                 <div className="space-y-3">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-[1.08]">
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-[1.02]">
                     Sabin Stan
                   </h1>
-                  <p className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 dark:from-indigo-400 dark:via-purple-300 dark:to-cyan-400 bg-clip-text text-transparent">
+                  <p className="text-xl sm:text-2xl font-bold bg-gradient-to-b from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
                     Full-Stack Software Developer
                   </p>
                 </div>
@@ -650,20 +686,19 @@ export default function App() {
                     <span>{lang === 'ro' ? 'Descarcă CV' : 'Download CV'}</span>
                   </motion.button>
 
-                  <motion.button
+                  <motion.a
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={copyEmail}
-                    className="px-4 py-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white/80 dark:bg-zinc-900/80 hover:border-zinc-300 dark:hover:border-zinc-600 text-zinc-700 dark:text-zinc-300 transition-colors flex items-center gap-2 text-xs font-mono shadow-xs"
-                    title="Copiază email"
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=stansabin575@gmail.com&su=Hello%20Sabin&body=Hi%20Sabin%2C%0A%0AI%20wanted%20to%20reach%20out%20about%20..."
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group px-4 py-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-gradient-to-r from-white to-zinc-50/90 dark:from-zinc-900 dark:to-zinc-950/90 hover:border-indigo-400/60 dark:hover:border-indigo-500/60 text-zinc-700 dark:text-zinc-300 transition-all shadow-sm hover:shadow-md hover:shadow-indigo-500/10 flex items-center justify-center text-xs font-mono"
+                    title="Trimite email direct pe Gmail"
                   >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-emerald-500 animate-bounce" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-zinc-400" />
-                    )}
-                    <span>{copied ? (lang === 'ro' ? 'Copiat!' : 'Copied!') : 'stansabin575@gmail.com'}</span>
-                  </motion.button>
+                    <span className="tracking-[0.08em] text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-300 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                      stansabin575@gmail.com
+                    </span>
+                  </motion.a>
 
                   <div className="flex items-center gap-1 text-zinc-400 border-l border-zinc-200 dark:border-zinc-800 pl-3">
                     <a
@@ -676,7 +711,7 @@ export default function App() {
                       <Github className="w-4 h-4" />
                     </a>
                     <a
-                      href="https://www.linkedin.com/in/sabin-stan-7521aa336/"
+                      href="https://www.linkedin.com/in/sabin-stan-7521aa336/?isSelfProfile=true"
                       target="_blank"
                       rel="noreferrer"
                       className="p-2 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 rounded-xl transition-colors"
@@ -694,13 +729,16 @@ export default function App() {
                 className="relative shrink-0 w-full max-w-[270px] sm:max-w-[310px] md:max-w-[330px] lg:max-w-[350px]"
               >
                 {/* Luminous aura backlight halo */}
-                <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/40 via-purple-500/30 to-cyan-400/40 rounded-3xl blur-2xl opacity-75 -z-10 animate-pulse" />
+                <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/40 via-purple-500/30 to-cyan-400/40 rounded-3xl blur-2xl opacity-75 -z-10" />
 
                 <div className="aspect-square rounded-3xl overflow-hidden border-2 border-indigo-500/30 dark:border-indigo-400/40 bg-zinc-950 shadow-2xl relative group glow-card">
-                  <img
+                  <motion.img
                     src={profilePhoto}
                     alt="Sabin Stan"
-                    className="w-full h-full object-cover grayscale transition-all duration-500 ease-out group-hover:grayscale-0"
+                    initial={{ filter: 'grayscale(100%) saturate(0.7)' }}
+                    animate={{ filter: 'grayscale(0%) saturate(1.1)' }}
+                    transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-full h-full object-cover transition-all duration-2000 ease-out"
                   />
                 </div>
               </motion.div>
@@ -725,7 +763,7 @@ export default function App() {
 
           {/* Clean Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
-            {filteredProjects.map((project, idx) => (
+            {PROJECTS.map((project, idx) => (
               <FadeInView key={project.id} delay={0.05 + idx * 0.05} className="h-full">
                 <ProjectCard3D project={project} lang={lang} />
               </FadeInView>
@@ -778,10 +816,6 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 pt-4 border-t border-zinc-100 dark:border-zinc-800/60 leading-relaxed">
-                      {cat.desc[lang]}
-                    </p>
 
                   </div>
                 </FadeInView>
@@ -1161,7 +1195,7 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-zinc-200/80 dark:border-zinc-800/80 py-10 text-xs text-zinc-500 transition-colors">
+      <footer className="relative z-10 border-t border-zinc-200/80 dark:border-zinc-800/80 py-10 text-xs text-zinc-500 transition-colors">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© {new Date().getFullYear()} Sabin Stan · Full-Stack Software Developer</p>
           <div className="flex items-center gap-6">

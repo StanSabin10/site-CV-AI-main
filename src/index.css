@@ -119,19 +119,17 @@ html.dark .glass-panel {
 
 /* Floating Navbar Glass */
 .glass-nav {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(22px) saturate(1.25);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.28), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 
 html.dark .glass-nav {
-  background: rgba(12, 12, 20, 0.8);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 30px 0 rgba(99, 102, 241, 0.12);
+  background: rgba(12, 12, 16, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 60px -30px rgba(15, 23, 42, 0.9), 0 0 0 1px rgba(99, 102, 241, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
 /* Modern Bento Grid Card */
@@ -272,5 +270,147 @@ html.dark .badge-status {
   }
   header, footer, .no-print, button {
     display: none !important;
+  }
+}
+
+/* Premium dark portfolio surfaces and ambient lighting. */
+html.dark body {
+  background-color: #09090b;
+  color: #f4f4f5;
+}
+
+html.dark .portfolio-shell {
+  background-color: transparent;
+}
+
+html.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+}
+
+.ambient-glow {
+  background: none;
+  animation: none;
+}
+
+.ambient-blob {
+  position: absolute;
+  display: block;
+  width: min(42vw, 38rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.12;
+  animation: none;
+}
+
+.ambient-blob-violet {
+  top: -15rem;
+  left: -14rem;
+  background: #7c3aed;
+}
+
+.ambient-blob-blue {
+  top: 30%;
+  right: -18rem;
+  background: #2563eb;
+  animation-delay: -7s;
+}
+
+.ambient-blob-cyan {
+  bottom: -24rem;
+  left: 30%;
+  width: min(36vw, 32rem);
+  background: #0891b2;
+  animation-delay: -13s;
+}
+
+html.dark .glass-nav {
+  background: rgba(12, 12, 16, 0.74);
+  border-color: rgba(255, 255, 255, 0.11);
+  box-shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.9), 0 0 30px rgba(99, 102, 241, 0.08);
+}
+
+html.dark .bento-card,
+html.dark .bento-card-3d {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+html.dark .bento-card:hover,
+html.dark .bento-card-3d:hover {
+  border-color: rgba(168, 85, 247, 0.38);
+  box-shadow: 0 22px 55px -34px rgba(99, 102, 241, 0.5), 0 0 26px rgba(168, 85, 247, 0.08);
+}
+
+.portfolio-shell main section h2 {
+  color: transparent;
+  background-image: linear-gradient(180deg, #fff 5%, rgba(244, 244, 245, 0.66) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.portfolio-shell main section h1 {
+  color: transparent;
+  background-image: linear-gradient(180deg, #fff 8%, rgba(244, 244, 245, 0.62) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+html:not(.dark) .portfolio-shell main section h1,
+html:not(.dark) .portfolio-shell main section h2 {
+  background-image: linear-gradient(180deg, #18181b 8%, rgba(63, 63, 70, 0.76) 100%);
+}
+
+.portfolio-shell button,
+.portfolio-shell a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-shell button:focus-visible,
+.portfolio-shell a:focus-visible,
+.portfolio-shell input:focus-visible,
+.portfolio-shell textarea:focus-visible {
+  outline: 2px solid rgba(129, 140, 248, 0.9);
+  outline-offset: 3px;
+}
+
+html.dark .portfolio-shell input,
+html.dark .portfolio-shell textarea {
+  color-scheme: dark;
+}
+
+@media (max-width: 640px) {
+  .ambient-blob {
+    width: 24rem;
+    filter: blur(100px);
+  }
+
+  .ambient-blob-violet {
+    top: -11rem;
+    left: -16rem;
+  }
+
+  .ambient-blob-blue {
+    right: -19rem;
+  }
+
+  .ambient-blob-cyan {
+    left: -7rem;
+    bottom: -20rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
