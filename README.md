@@ -1,20 +1,72 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Sabin Stan | Portfolio CV AI
 
-# Run and deploy your AI Studio app
+Portofoliul personal al lui Sabin Stan, construit cu React + Vite + TypeScript pentru a prezenta expertiza în dezvoltare full-stack, product engineering și aplicații moderne.
 
-This contains everything you need to run your app locally.
+## Ce include
 
-View your app in AI Studio: https://ai.studio/apps/bd5217de-ad66-4b03-b92c-74607c7c5b41
+- prezentare personală și profil profesional
+- secțiune de proiecte cu detalii tehnice
+- stack tehnologic grupat pe domenii
+- design responsive și modern
+- animații și micro-interacțiuni
+- formular de contact opțional cu Web3Forms
 
-## Run Locally
+## Tehnologii
 
-**Prerequisites:**  Node.js
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Framer Motion
+- Lucide React
 
+## Pornire rapidă
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerequisites
+
+- Node.js 18+
+
+### Instalare
+
+```bash
+npm install
+```
+
+### Rulare locală
+
+```bash
+npm run dev
+```
+
+Aplicația va porni pe http://localhost:3000.
+
+### Build pentru producție
+
+```bash
+npm run build
+```
+
+### Curățare build
+
+```bash
+npm run clean
+```
+
+## Variabile de mediu
+
+Există un exemplar de configurare în [.env.example](.env.example):
+
+```bash
+VITE_WEB3FORMS_KEY=your_web3forms_access_key_here
+```
+
+## Structură principală
+
+```text
+src/
+   App.tsx
+   main.tsx
+   index.css
+public/
+   cv.html
+```
