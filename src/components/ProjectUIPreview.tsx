@@ -43,10 +43,14 @@ export const ProjectUIPreview: React.FC<ProjectUIPreviewProps> = ({ projectId })
   const [selectedEndpoint, setSelectedEndpoint] = useState<'checkout' | 'orders' | 'health'>('checkout');
   const [wsActive, setWsActive] = useState(true);
 
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
   };
 
   // Modern code snippets per project

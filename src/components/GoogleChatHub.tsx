@@ -171,8 +171,10 @@ export default function GoogleChatHub({ lang }: GoogleChatHubProps) {
         }
       ]);
       triggerNotification(lang === 'ro' ? 'Conectat cu succes la Google Chat!' : 'Successfully connected to Google Chat!');
-    } catch (err: any) {
-      setAuthError(err.message || (lang === 'ro' ? 'Autentificarea Google a eșuat.' : 'Google authentication failed.'));
+    } catch (err: unknown) {
+      setAuthError(err instanceof Error && err.message
+        ? err.message
+        : (lang === 'ro' ? 'Autentificarea Google a eșuat.' : 'Google authentication failed.'));
     } finally {
       setLoading(false);
     }
@@ -264,8 +266,10 @@ export default function GoogleChatHub({ lang }: GoogleChatHubProps) {
           await loadSpaces(accessToken);
           setSelectedSpace(created);
           await loadMessages(accessToken, created.name);
-        } catch (err: any) {
-          triggerNotification(err.message);
+        } catch (err: unknown) {
+          triggerNotification(err instanceof Error && err.message
+            ? err.message
+            : (lang === 'ro' ? 'Crearea spațiului a eșuat.' : 'Failed to create the space.'));
         }
       },
     });

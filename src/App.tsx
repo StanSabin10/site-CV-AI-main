@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Github, 
   Linkedin, 
@@ -192,7 +192,7 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
   // Ambient specular light reflection tracking mouse position
   const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ['0%', '100%']);
   const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ['0%', '100%']);
-  const glareBg = useMotionTemplate`radial-gradient(380px circle at ${glareX} ${glareY}, rgba(99, 102, 241, 0.16), transparent 75%)`;
+  const glareBg = useMotionTemplate`radial-gradient(380px circle at ${glareX} ${glareY}, rgba(6, 182, 212, 0.1), transparent 72%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -219,7 +219,7 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
         }}
         whileHover={{ scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="bento-card-3d p-5 sm:p-6 rounded-2xl flex flex-col justify-between h-full group relative overflow-hidden transition-all duration-300 hover:border-indigo-400/40 hover:shadow-[0_14px_40px_-24px_rgba(99,102,241,0.65)]"
+        className="bento-card-3d p-5 sm:p-6 flex flex-col justify-between h-full group relative overflow-hidden"
       >
         {/* Subtle specular spotlight highlight */}
         <motion.div
@@ -234,11 +234,8 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-indigo-500 dark:text-indigo-400 font-semibold mb-1 block">
-                {project.category}
-              </span>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
                 {project.title}
               </h3>
             </div>
@@ -246,7 +243,8 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
               href={project.github}
               target="_blank"
               rel="noreferrer"
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/8 transition-colors shrink-0"
+              aria-label={lang === 'ro' ? 'Vezi codul pe GitHub' : 'View on GitHub'}
               title={lang === 'ro' ? 'Vezi codul pe GitHub' : 'View on GitHub'}
             >
               <ArrowUpRight className="w-4 h-4" />
@@ -257,15 +255,16 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
           <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
             {project.desc[lang]}
           </p>
+
         </div>
 
         {/* Tech Stack with 3D Depth */}
         <div 
-          className="pt-5 mt-auto border-t border-zinc-100 dark:border-zinc-800/50 flex flex-wrap items-center gap-2 relative z-10"
+          className="pt-5 mt-auto border-t border-zinc-100 dark:border-white/10 flex flex-wrap items-center gap-2 relative z-10"
           style={{ transform: 'translateZ(18px)' }}
         >
           {project.tech.map((t) => (
-            <span key={t} className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200/60 bg-zinc-100/70 px-2 py-1 text-[11px] font-medium text-zinc-600 dark:border-zinc-700/50 dark:bg-zinc-800/60 dark:text-zinc-300">
+            <span key={t} className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200/70 bg-zinc-50/90 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:border-white/10 dark:bg-white/[0.045] dark:text-zinc-300">
               <TechIcon name={t} className="w-3.5 h-3.5 shrink-0" />
               <span>{t}</span>
             </span>
@@ -284,6 +283,43 @@ export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const cvTriggerRef = useRef<HTMLButtonElement>(null);
+  const cvCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (showCv) cvCloseRef.current?.focus();
+  }, [showCv]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    const desktopMedia = window.matchMedia('(min-width: 1024px)');
+    const handleBreakpointChange = () => {
+      if (desktopMedia.matches) setMobileMenuOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('pointerdown', handlePointerDown);
+    desktopMedia.addEventListener('change', handleBreakpointChange);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', handlePointerDown);
+      desktopMedia.removeEventListener('change', handleBreakpointChange);
+    };
+  }, [mobileMenuOpen]);
 
   // Initialize language and theme from localStorage
   useEffect(() => {
@@ -435,7 +471,7 @@ export default function App() {
 
   const navItems = [
     { id: 'proiecte', label: lang === 'ro' ? 'Proiecte' : 'Projects' },
-    { id: 'tehnologii', label: lang === 'ro' ? 'Stack Tehnologic' : 'Skills' },
+    { id: 'tehnologii', label: lang === 'ro' ? 'Tehnologii' : 'Skills' },
     { id: 'experienta', label: lang === 'ro' ? 'Experiență' : 'Experience' },
     { id: 'contact', label: 'Contact' }
   ];
@@ -451,292 +487,227 @@ export default function App() {
         <span className="ambient-blob ambient-blob-cyan" />
       </div>
 
-      {/* FLOATING GLASSMORPHISM NAVBAR */}
-    <header className="fixed top-4 inset-x-0 z-50 max-w-6xl mx-auto px-4 sm:px-6">
-  <div className="glass-nav rounded-full px-4 sm:px-5 h-14 flex items-center justify-between transition-all duration-300 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.45)]">
-    <a href="#hero" className="flex items-center gap-3 group min-w-0">
-      <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 via-violet-500/15 to-cyan-400/15 border border-zinc-200/80 dark:border-zinc-700/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] flex items-center justify-center overflow-hidden group-hover:border-indigo-400/60 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all duration-300 shrink-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/25 via-purple-500/10 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <header ref={headerRef} className="site-header">
+        <div className="header-inner max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
+          <div className="header-brand" aria-hidden="true" />
 
-        <svg
-          className="w-5 h-5 transition-transform duration-300 group-hover:scale-110 relative z-10"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M16.5 7.5C16.5 5.57 14.8 4 12.5 4H9C6.79 4 5 5.79 5 8C5 10.21 6.79 12 9 12H15C17.21 12 19 13.79 19 16C19 18.21 17.21 20 15 20H11.5C9.2 20 7.5 18.43 7.5 16.5"
-            stroke="url(#brand-grad)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="16.5" cy="7.5" r="1.2" fill="#06B6D4" />
-          <circle cx="7.5" cy="16.5" r="1.2" fill="#6366F1" />
-          <defs>
-            <linearGradient id="brand-grad" x1="5" y1="4" x2="19" y2="20" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#6366F1" />
-              <stop offset="0.5" stopColor="#A855F7" />
-              <stop offset="1" stopColor="#06B6D4" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-
-      <div className="flex flex-col min-w-0 gap-1">
-        <span className="font-extrabold text-[13px] sm:text-sm text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-300 transition-colors leading-none tracking-[0.04em]">
-          SABIN <span className="text-indigo-600 dark:text-indigo-300">STAN</span>
-        </span>
-        <span className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono uppercase leading-none tracking-[0.12em]">
-          WEB / API / AI
-        </span>
-      </div>
-    </a>
-
-    <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
-      {navItems.map((item) => {
-        const isActive = activeSection === item.id;
-
-        return (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={`px-3 py-2 rounded-full transition-all duration-200 ${
-              isActive
-                ? 'bg-white/70 dark:bg-white/8 text-zinc-900 dark:text-white shadow-[0_4px_16px_-8px_rgba(99,102,241,0.45)] ring-1 ring-zinc-200/80 dark:ring-white/10'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
-            }`}
-          >
-            {item.label}
-          </a>
-        );
-      })}
-    </nav>
-
-    <div className="flex items-center gap-2 sm:gap-3">
-      <div className="hidden sm:flex items-center rounded-full border border-zinc-200/70 dark:border-white/10 bg-white/40 dark:bg-white/[0.03] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
-        {(['ro', 'en'] as const).map((language) => (
-          <button
-            key={language}
-            type="button"
-            onClick={() => changeLang(language)}
-            aria-pressed={lang === language}
-            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase transition-all ${lang === language ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}`}
-          >
-            {language}
-          </button>
-        ))}
-      </div>
-
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200/70 dark:border-white/10 bg-white/40 dark:bg-white/[0.03] text-zinc-500 dark:text-zinc-400 transition-all hover:bg-white/80 dark:hover:bg-white/[0.08] hover:text-zinc-900 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
-        aria-label={theme === 'dark' ? (lang === 'ro' ? 'Activează tema luminoasă' : 'Switch to light theme') : (lang === 'ro' ? 'Activează tema întunecată' : 'Switch to dark theme')}
-        title={theme === 'dark' ? (lang === 'ro' ? 'Tema luminoasă' : 'Light theme') : (lang === 'ro' ? 'Tema întunecată' : 'Dark theme')}
-      >
-        {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      </button>
-
-      <motion.a
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-        href="/cv.html"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-white to-slate-100 text-slate-950 hover:from-slate-50 hover:to-slate-200 transition-colors hidden sm:inline-flex items-center gap-1.5 shadow-[0_8px_20px_-12px_rgba(15,23,42,0.8)] border border-zinc-200/80"
-      >
-        <FileText className="w-3.5 h-3.5" />
-        <span>CV (PDF)</span>
-      </motion.a>
-
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="p-2 rounded-xl md:hidden text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-        aria-label="Open menu"
-      >
-        {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-    </div>
-  </div>
-
-  <AnimatePresence>
-    {mobileMenuOpen && (
-      <motion.div
-        initial={{ opacity: 0, y: -10, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -10, scale: 0.98 }}
-        transition={{ duration: 0.2 }}
-        className="glass-nav mt-2 rounded-2xl p-4 md:hidden space-y-2"
-      >
-        {navItems.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            onClick={() => setMobileMenuOpen(false)}
-            className={`block bg-transparent text-sm font-medium py-2 px-3 rounded-lg hover:bg-white/5 transition-colors ${
-              activeSection === item.id
-                ? 'text-zinc-900 dark:text-white'
-                : 'text-zinc-500 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white'
-            }`}
-          >
-            {item.label}
-          </a>
-        ))}
-
-        <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-          <div className="flex items-center rounded-full border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
-            {(['ro', 'en'] as const).map((language) => (
-              <button
-                key={language}
-                type="button"
-                onClick={() => changeLang(language)}
-                aria-pressed={lang === language}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase transition-colors ${lang === language ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-200'}`}
+          <nav className="header-nav" aria-label={lang === 'ro' ? 'Navigație principală' : 'Main navigation'}>
+            {navItems.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className="header-nav-link"
+                aria-current={activeSection === item.id ? 'location' : undefined}
               >
-                {language}
-              </button>
+                {item.label}
+              </a>
             ))}
+          </nav>
+
+          <div className="header-actions">
+            <div className="header-language hidden sm:flex" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
+              {(['ro', 'en'] as const).map((language) => (
+                <button
+                  key={language}
+                  type="button"
+                  onClick={() => changeLang(language)}
+                  aria-pressed={lang === language}
+                  className="header-language-button"
+                  title={language === 'ro' ? 'Română' : 'English'}
+                >
+                  {language.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="header-icon-button"
+              aria-label={theme === 'dark' ? (lang === 'ro' ? 'Activează tema luminoasă' : 'Switch to light theme') : (lang === 'ro' ? 'Activează tema întunecată' : 'Switch to dark theme')}
+              title={theme === 'dark' ? (lang === 'ro' ? 'Tema luminoasă' : 'Light theme') : (lang === 'ro' ? 'Tema întunecată' : 'Dark theme')}
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            <button
+              ref={menuButtonRef}
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="header-icon-button header-menu-toggle"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              aria-label={mobileMenuOpen ? (lang === 'ro' ? 'Închide meniul' : 'Close menu') : (lang === 'ro' ? 'Deschide meniul' : 'Open menu')}
+              title={lang === 'ro' ? 'Meniu' : 'Menu'}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-white"
-            aria-label={theme === 'dark' ? (lang === 'ro' ? 'Activează tema luminoasă' : 'Switch to light theme') : (lang === 'ro' ? 'Activează tema întunecată' : 'Switch to dark theme')}
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
         </div>
 
-        <div className="pt-2 border-t border-zinc-200/70 dark:border-white/10">
-          <a
-            href="/cv.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="w-full py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-950 hover:bg-slate-200 transition-colors text-center flex items-center justify-center gap-2"
-          >
-            <FileText className="w-4 h-4" />
-            <span>Curriculum Vitae (PDF)</span>
-          </a>
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-</header>
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              id="mobile-navigation"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.16 }}
+              className="header-mobile-menu lg:hidden"
+            >
+              <div className="header-mobile-inner max-w-6xl mx-auto px-5 sm:px-8">
+                <nav aria-label={lang === 'ro' ? 'Navigație mobilă' : 'Mobile navigation'}>
+                  {navItems.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="header-mobile-link"
+                      aria-current={activeSection === item.id ? 'location' : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+
+                <div className="header-mobile-options flex sm:hidden">
+                  <div className="header-language flex" role="group" aria-label={lang === 'ro' ? 'Alege limba' : 'Choose language'}>
+                    {(['ro', 'en'] as const).map((language) => (
+                      <button
+                        key={language}
+                        type="button"
+                        onClick={() => changeLang(language)}
+                        aria-pressed={lang === language}
+                        className="header-language-button"
+                        title={language === 'ro' ? 'Română' : 'English'}
+                      >
+                        {language.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                  <a
+                    href="/cv.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="header-mobile-cv"
+                  >
+                    <FileText className="w-4 h-4" aria-hidden="true" />
+                    <span>Curriculum Vitae</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
       {/* MAIN CONTAINER */}
-      <main className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-32 sm:pt-40 pb-12 sm:pb-20 space-y-28 sm:space-y-36">
+      <main className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 pt-32 sm:pt-40 pb-12 sm:pb-20 space-y-24 sm:space-y-32 lg:space-y-36">
 
         {/* 1. HERO SECTION — Modern Developer Intro */}
         <section id="hero" className="scroll-mt-28">
           <FadeInView delay={0.05} yOffset={14}>
-            <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 lg:gap-14">
+            <div className="hero-panel flex flex-col md:flex-row items-center justify-between gap-10 lg:gap-16 p-6 sm:p-10 lg:p-14">
               
-              <div className="space-y-6 max-w-xl text-center md:text-left">
-
-                {/* Available for work badge */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-600 dark:text-emerald-400 shadow-xs backdrop-blur-xs w-fit mx-auto md:mx-0">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span>
-                    {lang === 'ro'
-                      ? 'Disponibil pentru roluri Junior / Full-Stack & Freelance'
-                      : 'Available for Junior / Full-Stack & Freelance'}
-                  </span>
-                </div>
+              <div className="hero-copy w-full max-w-xl space-y-7 text-center md:text-left">
 
                 {/* Name & Title */}
                 <div className="space-y-3">
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-[1.02]">
+                  <h1 className="hero-title text-5xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-900 dark:text-white leading-[0.98]">
                     Sabin Stan
                   </h1>
-                  <p className="text-xl sm:text-2xl font-bold bg-gradient-to-b from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
-                    Full-Stack Software Developer
+                  <p className="hero-role text-lg sm:text-xl font-semibold text-zinc-700 dark:text-zinc-200">
+                    <span className="text-zinc-700 dark:text-zinc-200">Full-Stack</span> Software Developer
                   </p>
                 </div>
 
                 {/* Bio Prose — Professional & Modern */}
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
+                <p className="hero-bio mx-auto max-w-xl text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal md:mx-0">
                   {lang === 'ro'
                     ? 'Dezvoltator Web axat pe aplicații rapide, responsive, integrări API și interfețe moderne în React / Next.js.'
                     : 'Web Developer focused on fast, responsive applications, API integrations, and modern interfaces in React / Next.js.'}
                 </p>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2 text-sm">
-                  <motion.a
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    href="#contact"
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>{lang === 'ro' ? 'Contactează-mă' : 'Get in touch'}</span>
-                  </motion.a>
+                <div className="hero-actions space-y-3 pt-2 text-sm">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
+                    <motion.a
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      href="#contact"
+                      className="inline-flex min-h-12 w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-300 hover:from-cyan-300 hover:to-cyan-200 text-slate-950 font-bold transition-all shadow-[0_18px_40px_-18px_rgba(34,211,238,0.9)] items-center gap-2"
+                    >
+                      <Mail className="w-4 h-4" aria-hidden="true" />
+                      <span>{lang === 'ro' ? 'Contactează-mă' : 'Get in touch'}</span>
+                    </motion.a>
 
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setShowCv(true)}
-                    className="px-4 py-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white/80 dark:bg-zinc-900/80 hover:border-indigo-500/50 text-zinc-800 dark:text-zinc-200 transition-colors flex items-center gap-2 text-xs font-semibold shadow-xs"
-                  >
-                    <FileText className="w-4 h-4 text-indigo-500" />
-                    <span>{lang === 'ro' ? 'Descarcă CV' : 'Download CV'}</span>
-                  </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      ref={cvTriggerRef}
+                      onClick={() => setShowCv(true)}
+                      className="inline-flex min-h-12 w-full sm:w-auto justify-center px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] hover:border-cyan-400/60 hover:bg-white/[0.06] text-zinc-100 transition-colors items-center gap-2 text-xs font-semibold shadow-[0_12px_30px_-22px_rgba(103,232,249,0.8)]"
+                    >
+                      <FileText className="w-4 h-4 text-cyan-300" aria-hidden="true" />
+                      <span>{lang === 'ro' ? 'Descarcă CV' : 'Download CV'}</span>
+                    </motion.button>
+                  </div>
 
-                  <motion.a
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    href="https://mail.google.com/mail/?view=cm&fs=1&to=stansabin575@gmail.com&su=Hello%20Sabin&body=Hi%20Sabin%2C%0A%0AI%20wanted%20to%20reach%20out%20about%20..."
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group px-4 py-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-gradient-to-r from-white to-zinc-50/90 dark:from-zinc-900 dark:to-zinc-950/90 hover:border-indigo-400/60 dark:hover:border-indigo-500/60 text-zinc-700 dark:text-zinc-300 transition-all shadow-sm hover:shadow-md hover:shadow-indigo-500/10 flex items-center justify-center text-xs font-mono"
-                    title="Trimite email direct pe Gmail"
-                  >
-                    <span className="tracking-[0.08em] text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-300 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                      stansabin575@gmail.com
-                    </span>
-                  </motion.a>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    <motion.a
+                      whileHover={{ scale: 1.02 }}
+                      href="https://mail.google.com/mail/?view=cm&fs=1&to=stansabin575@gmail.com&su=Hello%20Sabin&body=Hi%20Sabin%2C%0A%0AI%20wanted%20to%20reach%20out%20about%20..."
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hero-email group inline-flex min-h-11 max-w-full items-center justify-center rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-xs font-mono text-slate-200 transition-colors hover:border-cyan-400/60 hover:text-cyan-200"
+                      aria-label={lang === 'ro' ? 'Trimite email la stansabin575@gmail.com' : 'Email stansabin575@gmail.com'}
+                      title="Trimite email direct pe Gmail"
+                    >
+                      <span className="break-all">stansabin575@gmail.com</span>
+                    </motion.a>
 
-                  <div className="flex items-center gap-1 text-zinc-400 border-l border-zinc-200 dark:border-zinc-800 pl-3">
+                    <div className="flex items-center gap-1 text-zinc-400">
                     <a
                       href="https://github.com/StanSabin10"
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 rounded-xl transition-colors"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/8 rounded-xl transition-colors"
+                      aria-label="GitHub"
                       title="GitHub"
                     >
-                      <Github className="w-4 h-4" />
+                      <Github className="w-4 h-4" aria-hidden="true" />
                     </a>
                     <a
                       href="https://www.linkedin.com/in/sabin-stan-7521aa336/?isSelfProfile=true"
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 rounded-xl transition-colors"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/8 rounded-xl transition-colors"
+                      aria-label="LinkedIn"
                       title="LinkedIn"
                     >
-                      <Linkedin className="w-4 h-4" />
+                      <Linkedin className="w-4 h-4" aria-hidden="true" />
                     </a>
                   </div>
+                </div>
                 </div>
 
               </div>
 
               {/* Developer Portrait */}
               <motion.div
-                className="relative shrink-0 w-full max-w-[270px] sm:max-w-[310px] md:max-w-[330px] lg:max-w-[350px]"
+                className="hero-portrait relative shrink-0 w-full max-w-[210px] sm:max-w-[250px] md:max-w-[275px] lg:max-w-[300px]"
               >
                 {/* Luminous aura backlight halo */}
-                <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/40 via-purple-500/30 to-cyan-400/40 rounded-3xl blur-2xl opacity-75 -z-10" />
+                <div className="absolute -inset-4 bg-gradient-to-tr from-cyan-500/16 via-indigo-500/12 to-emerald-500/10 rounded-3xl blur-2xl opacity-70 -z-10" />
 
-                <div className="aspect-square rounded-3xl overflow-hidden border-2 border-indigo-500/30 dark:border-indigo-400/40 bg-zinc-950 shadow-2xl relative group glow-card">
+                <div className="portrait-frame aspect-[4/5] rounded-3xl overflow-hidden border border-zinc-200/70 dark:border-white/12 bg-zinc-950 shadow-2xl relative group">
                   <motion.img
                     src={profilePhoto}
                     alt="Sabin Stan"
-                    initial={{ filter: 'grayscale(100%) saturate(0.7)' }}
-                    animate={{ filter: 'grayscale(0%) saturate(1.1)' }}
+                    initial={{ filter: 'grayscale(35%) saturate(0.9)' }}
+                    animate={{ filter: 'grayscale(0%) saturate(1.08) contrast(1.04)' }}
                     transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
                     className="w-full h-full object-cover transition-all duration-2000 ease-out"
                   />
@@ -750,19 +721,19 @@ export default function App() {
         {/* 2. PROIECTE (Projects) */}
         <section id="proiecte" className="scroll-mt-28 space-y-8 sm:space-y-10">
           <FadeInView delay={0.06}>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-semibold tracking-wider uppercase font-mono">
+            <div className="section-heading">
+              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{lang === 'ro' ? 'Portofoliu Selectat' : 'Selected Work'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 dark:text-white">
                 {lang === 'ro' ? 'Proiecte Relevante' : 'Featured Projects'}
               </h2>
             </div>
           </FadeInView>
 
           {/* Clean Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
             {PROJECTS.map((project, idx) => (
               <FadeInView key={project.id} delay={0.05 + idx * 0.05} className="h-full">
                 <ProjectCard3D project={project} lang={lang} />
@@ -774,26 +745,23 @@ export default function App() {
         {/* 3. STACK TEHNOLOGIC (Skills) */}
         <section id="tehnologii" className="scroll-mt-28 space-y-10 sm:space-y-12">
           <FadeInView delay={0.06}>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-semibold tracking-wider uppercase font-mono">
+            <div className="section-heading">
+              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
                 <Layers className="w-3.5 h-3.5" />
                 <span>{lang === 'ro' ? 'Competențe Cheie' : 'Technical Proficiency'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white">
                 {lang === 'ro' ? 'Stack tehnologic' : 'Skills & Technologies'}
               </h2>
-              <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-xl">
-                {lang === 'ro' ? 'Limbajele, framework-urile și instrumentele pe care le stăpânesc.' : 'Languages, frameworks, and tools I leverage to build software.'}
-              </p>
             </div>
           </FadeInView>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
             {STACK_DATA.map((cat, idx) => {
               const IconComp = cat.icon;
               return (
                 <FadeInView key={cat.id} delay={0.06 + idx * 0.05} className="h-full">
-                  <div className="bento-card glow-card p-6 sm:p-7 rounded-2xl hover-lift flex flex-col justify-between h-full space-y-5 transition-all duration-300 hover:border-purple-500/40 hover:shadow-[0_0_25px_rgba(168,85,247,0.12)]">
+                  <div className="bento-card glow-card p-5 sm:p-6 rounded-2xl hover-lift flex flex-col justify-between h-full space-y-5 transition-all duration-300">
                     
                     <div className="space-y-4">
                       <div className="flex items-center gap-3 font-bold text-zinc-900 dark:text-white text-base">
@@ -824,155 +792,76 @@ export default function App() {
           </div>
         </section>
 
-        {/* 4. EXPERIENȚĂ & EDUCAȚIE — Timeline Layout */}
-        <section id="experienta" className="scroll-mt-28 space-y-10 sm:space-y-12">
+        {/* 4. EXPERIENȚĂ & EDUCAȚIE */}
+        <section id="experienta" className="scroll-mt-28 space-y-8 sm:space-y-10">
           <FadeInView delay={0.06}>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-semibold tracking-wider uppercase font-mono">
+            <div className="section-heading">
+              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
                 <Briefcase className="w-3.5 h-3.5" />
-                <span>{lang === 'ro' ? 'Traseu Profesional' : 'Career Pathway'}</span>
+                <span>{lang === 'ro' ? 'Parcursul meu' : 'My Journey'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white">
                 {lang === 'ro' ? 'Experiență & Studii' : 'Experience & Education'}
               </h2>
-              <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-xl">
-                {lang === 'ro' 
-                  ? 'Parcursul meu în dezvoltarea web și pregătirea academică la facultate.' 
-                  : 'My web development journey and academic computer science background.'}
-              </p>
             </div>
           </FadeInView>
 
-          {/* Timeline Container */}
-          <div className="relative pl-6 sm:pl-8 space-y-8 sm:space-y-10">
-            {/* Vertical timeline line */}
-            <div className="timeline-line" />
-
-            {/* Item 1: Full-Stack Web Developer */}
-            <FadeInView delay={0.08} className="relative">
-              <div className="absolute -left-[calc(1.5rem+7px)] sm:-left-[calc(2rem+7px)] top-1.5 w-4 h-4 rounded-full bg-indigo-600 dark:bg-indigo-400 border-4 border-white dark:border-zinc-950 timeline-node shadow-md shadow-indigo-500/30" />
-              
-              <div className="bento-card glow-card p-6 sm:p-8 rounded-2xl hover-lift space-y-5 border border-zinc-200/70 dark:border-zinc-800/70">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex items-center gap-3.5">
-                    <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 shadow-2xs">
-                      <Briefcase className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-zinc-900 dark:text-white text-base sm:text-lg tracking-tight">
-                        Full-Stack Web Development
-                      </h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
-                        {lang === 'ro' ? 'Freelance & Proiecte Personale' : 'Personal Projects & Freelance'}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-200/70 dark:border-indigo-800/60">
-                    2023 — Prezent
-                  </span>
+          <div className="experience-list">
+            <FadeInView delay={0.08}>
+              <article className="experience-entry">
+                <div className="experience-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">Full-Stack Web Development</h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {lang === 'ro' ? 'Freelance & Proiecte Personale' : 'Personal Projects & Freelance'}
+                  </p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4 max-w-2xl">
+                    {lang === 'ro'
+                      ? 'Dezvolt aplicații web moderne având la bază HTML, CSS și JavaScript. În prezent aprofundez React pentru crearea de interfețe dinamice, iar pe partea de backend învăț Next.js, gestiunea bazelor de date și integrarea modelelor de Inteligență Artificială (AI).'
+                      : 'Building modern web applications grounded in HTML, CSS, and JavaScript. Currently expanding my expertise in React for dynamic frontend UIs, while focusing on Next.js, database systems, and AI integrations on the backend.'}
+                  </p>
+                  <p className="experience-topics">
+                    {lang === 'ro'
+                      ? 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Baze de date  ·  Integrare AI'
+                      : 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Databases  ·  AI integration'}
+                  </p>
                 </div>
-
-                <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal pt-1">
-                  {lang === 'ro'
-                    ? 'Dezvolt aplicații web moderne având la bază HTML, CSS și JavaScript. În prezent aprofundez React pentru crearea de interfețe dinamice, iar pe partea de backend învăț Next.js, gestiunea bazelor de date și integrarea modelelor de Inteligență Artificială (AI).'
-                    : 'Building modern web applications grounded in HTML, CSS, and JavaScript. Currently expanding my expertise in React for dynamic frontend UIs, while focusing on Next.js, database systems, and AI integrations on the backend.'}
-                </p>
-
-                {/* Clean, well-spaced badges */}
-                <div className="pt-2">
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      'HTML5',
-                      'CSS3',
-                      'JavaScript',
-                      'React',
-                      'Next.js',
-                      'Baze de Date',
-                      'Integrare AI'
-                    ].map((item) => (
-                      <span 
-                        key={item} 
-                        className="text-xs font-medium px-3 py-1.5 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/50"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </article>
             </FadeInView>
 
-            {/* Item 2: Education - UPG Ploiești */}
-            <FadeInView delay={0.12} className="relative">
-              <div className="absolute -left-[calc(1.5rem+7px)] sm:-left-[calc(2rem+7px)] top-1.5 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white dark:border-zinc-950 timeline-node shadow-md shadow-emerald-500/30" />
-
-              <div className="bento-card glow-card p-6 sm:p-8 rounded-2xl hover-lift space-y-5 border border-zinc-200/70 dark:border-zinc-800/70">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex items-center gap-3.5">
-                    <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shadow-2xs">
-                      <GraduationCap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-zinc-900 dark:text-white text-base sm:text-lg tracking-tight">
-                        {lang === 'ro' ? 'Specializarea Calculatoare (Anul 2)' : 'Computer Engineering (2nd Year)'}
-                      </h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
-                        Universitatea Petrol-Gaze din Ploiești (UPG)
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-200/70 dark:border-emerald-800/60">
-                    Anul 2 · Student
-                  </span>
+            <FadeInView delay={0.12}>
+              <article className="experience-entry">
+                <div className="experience-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">
+                    {lang === 'ro' ? 'Specializarea Calculatoare (Anul 2)' : 'Computer Engineering (2nd Year)'}
+                  </h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Universitatea Petrol-Gaze din Ploiești (UPG)</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4 max-w-2xl">
+                    {lang === 'ro'
+                      ? 'Student în anul 2 la UPG Ploiești, domeniul Calculatoare. Parcurg un program academic axat pe principiile fundamentale ale informaticii, structuri de date, algoritmi, arhitectura sistemelor de calcul și rețele.'
+                      : '2nd-year Computer Engineering student at Petroleum-Gas University of Ploiești (UPG). Developing a strong theoretical and practical foundation in computer science, data structures, algorithms, system architecture, and networking.'}
+                  </p>
+                  <p className="experience-topics">
+                    {lang === 'ro'
+                      ? 'Structuri de date  ·  Algoritmi  ·  Arhitectura calculatoarelor  ·  Programare & rețele'
+                      : 'Data structures  ·  Algorithms  ·  Computer architecture  ·  Programming & networks'}
+                  </p>
                 </div>
-
-                <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal pt-1">
-                  {lang === 'ro'
-                    ? 'Student în anul 2 la UPG Ploiești, domeniul Calculatoare. Parcurg un program academic axat pe principiile fundamentale ale informaticii, structuri de date, algoritmi, arhitectura sistemelor de calcul și rețele.'
-                    : '2nd-year Computer Engineering student at Petroleum-Gas University of Ploiești (UPG). Developing a strong theoretical and practical foundation in computer science, data structures, algorithms, system architecture, and networking.'}
-                </p>
-
-                <div className="pt-2">
-                  <span className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500 block mb-2 font-medium">
-                    {lang === 'ro' ? 'Domenii Academice:' : 'Academic Subjects:'}
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      'UPG Ploiești',
-                      'Calculatoare - Anul 2',
-                      'Structuri de Date',
-                      'Algoritmi',
-                      'Arhitectura Calculatoarelor',
-                      'Programare & Rețele'
-                    ].map((tag) => (
-                      <span key={tag} className="text-xs font-medium px-3 py-1.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/40">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </article>
             </FadeInView>
-
           </div>
         </section>
 
         {/* 5. CONTACT DIRECT & FORMULAR */}
         <section id="contact" className="scroll-mt-28 space-y-10 sm:space-y-12">
           <FadeInView delay={0.06}>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-semibold tracking-wider uppercase font-mono">
+            <div className="section-heading">
+              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
                 <Mail className="w-3.5 h-3.5" />
                 <span>{lang === 'ro' ? 'Canal Direct & Formular' : 'Direct Channel & Form'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 dark:text-white">
                 {lang === 'ro' ? 'Hai să colaborăm' : "Let's collaborate"}
               </h2>
-              <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-xl">
-                {lang === 'ro'
-                  ? 'Trimite-mi un mesaj rapid prin formularul de mai jos sau folosește canalele directe de contact.'
-                  : 'Send me a direct message through the form below or connect via direct channels.'}
-              </p>
             </div>
           </FadeInView>
 
@@ -1051,6 +940,7 @@ export default function App() {
                         initial={{ opacity: 0, y: -6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
+                        role="status"
                         className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-start gap-3 text-xs leading-relaxed"
                       >
                         <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
@@ -1069,6 +959,7 @@ export default function App() {
                         initial={{ opacity: 0, y: -6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
+                        role="alert"
                         className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 flex items-start gap-3 text-xs leading-relaxed"
                       >
                         <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -1082,7 +973,7 @@ export default function App() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="min-h-11 w-full sm:w-auto px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-semibold text-sm transition-colors shadow-md shadow-cyan-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>
@@ -1103,7 +994,7 @@ export default function App() {
               <div className="lg:col-span-5 space-y-5">
                 
                 {/* Email Direct */}
-                <div className="bento-card glow-card p-6 rounded-2xl flex flex-col justify-between space-y-4 transition-all duration-300 hover:border-purple-500/40 hover:shadow-[0_0_25px_rgba(168,85,247,0.12)]">
+                <div className="bento-card glow-card p-6 rounded-2xl flex flex-col justify-between space-y-4 transition-all duration-300">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs font-mono">
@@ -1119,7 +1010,7 @@ export default function App() {
                     </div>
                     <a
                       href="mailto:stansabin575@gmail.com"
-                      className="font-semibold text-zinc-900 dark:text-white text-base hover:text-purple-400 transition-colors block text-left break-all cursor-pointer group"
+                      className="inline-flex min-h-11 items-center font-semibold text-zinc-900 dark:text-white text-base hover:text-purple-400 transition-colors text-left break-all cursor-pointer group"
                       title="Trimite un email direct la stansabin575@gmail.com"
                     >
                       stansabin575@gmail.com
@@ -1128,14 +1019,14 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <a
                       href="mailto:stansabin575@gmail.com"
-                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-medium transition-colors"
+                      className="inline-flex min-h-11 items-center px-2 text-xs text-indigo-600 dark:text-indigo-400 hover:underline gap-1 font-medium transition-colors"
                     >
                       <Mail className="w-3.5 h-3.5" />
                       <span>{lang === 'ro' ? 'Trimite email' : 'Send email'}</span>
                     </a>
                     <button
                       onClick={copyEmail}
-                      className="text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 font-mono cursor-pointer transition-colors"
+                      className="inline-flex min-h-11 items-center px-2 text-xs text-zinc-400 hover:text-zinc-200 gap-1 font-mono cursor-pointer transition-colors"
                       title="Copiază adresa"
                     >
                       <Copy className="w-3.5 h-3.5" />
@@ -1145,7 +1036,7 @@ export default function App() {
                 </div>
 
                 {/* Locație cu Google Maps */}
-                <div className="bento-card glow-card p-6 rounded-2xl flex flex-col justify-between space-y-4 transition-all duration-300 hover:border-purple-500/40 hover:shadow-[0_0_25px_rgba(168,85,247,0.12)]">
+                <div className="bento-card glow-card p-6 rounded-2xl flex flex-col justify-between space-y-4 transition-all duration-300">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs font-mono">
@@ -1156,7 +1047,7 @@ export default function App() {
                         href="https://maps.google.com/?q=Ploiesti,+Romania"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                        className="inline-flex min-h-11 items-center gap-1 px-2 text-[11px] font-mono text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                         title="Google Maps"
                       >
                         <span>Google Maps</span>
@@ -1196,18 +1087,18 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="relative z-10 border-t border-zinc-200/80 dark:border-zinc-800/80 py-10 text-xs text-zinc-500 transition-colors">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© {new Date().getFullYear()} Sabin Stan · Full-Stack Software Developer</p>
           <div className="flex items-center gap-6">
-            <a href="https://github.com/StanSabin10" target="_blank" rel="noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">GitHub</a>
-            <a href="https://www.linkedin.com/in/sabin-stan-7521aa336/" target="_blank" rel="noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">LinkedIn</a>
-            <a href="mailto:stansabin575@gmail.com" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">stansabin575@gmail.com</a>
+            <a href="https://github.com/StanSabin10" target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">GitHub</a>
+            <a href="https://www.linkedin.com/in/sabin-stan-7521aa336/" target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">LinkedIn</a>
+            <a href="mailto:stansabin575@gmail.com" className="inline-flex min-h-11 items-center hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">stansabin575@gmail.com</a>
           </div>
         </div>
       </footer>
 
       {/* CLEAN ATS RESUME MODAL */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={() => cvTriggerRef.current?.focus()}>
         {showCv && (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -1221,21 +1112,26 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.97, y: 8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cv-modal-title"
               className="bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 text-zinc-700 dark:text-zinc-300 space-y-6 shadow-2xl transition-colors"
             >
               <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Curriculum Vitae — Sabin Stan</h3>
+                <h3 id="cv-modal-title" className="text-sm font-bold text-zinc-900 dark:text-white">Curriculum Vitae — Sabin Stan</h3>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => window.print()}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-900 text-xs font-semibold dark:hover:bg-white flex items-center gap-1.5"
+                    className="min-h-11 px-3 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-900 text-xs font-semibold dark:hover:bg-white flex items-center gap-1.5"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Print / PDF</span>
                   </button>
                   <button
+                    ref={cvCloseRef}
                     onClick={() => setShowCv(false)}
-                    className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                    aria-label={lang === 'ro' ? 'Închide CV-ul' : 'Close CV'}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -1296,7 +1192,7 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8, y: 14 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-40 p-3 rounded-full bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 shadow-xl hover:scale-105 active:scale-95 transition-all group cursor-pointer"
+            className="fixed bottom-8 right-8 z-40 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 shadow-xl hover:scale-105 active:scale-95 transition-all group cursor-pointer"
             aria-label={lang === 'ro' ? 'Înapoi sus' : 'Scroll to top'}
             title={lang === 'ro' ? 'Înapoi sus' : 'Scroll to top'}
           >
