@@ -36,7 +36,7 @@ import {
 import { TechIcon } from './components/TechIcon';
 
 // Authentic developer portrait
-import profilePhoto from '../123.png';
+const profilePhoto = 'https://d2ol7oe51mr4n9.cloudfront.net/user_3KF8uUYTYtBxq4oVl5eR7HBILJD/2f14567d-86a6-44bd-8f16-98635f8e0519.png';
 
 type Language = 'ro' | 'en';
 type Theme = 'dark' | 'light';
