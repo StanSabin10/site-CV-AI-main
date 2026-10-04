@@ -282,6 +282,7 @@ export default function App() {
   const [showCv, setShowCv] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('hero');
+  const [headerScrolled, setHeaderScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -348,6 +349,7 @@ export default function App() {
   // Section observer to update active nav state
   useEffect(() => {
     const handleScroll = () => {
+      setHeaderScrolled(window.scrollY > 16);
       setShowScrollTop(window.scrollY > 350);
 
       const sections = ['hero', 'proiecte', 'tehnologii', 'experienta', 'contact'];
@@ -363,6 +365,7 @@ export default function App() {
       }
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -487,10 +490,8 @@ export default function App() {
         <span className="ambient-blob ambient-blob-cyan" />
       </div>
 
-      <header ref={headerRef} className="site-header">
+      <header ref={headerRef} className="site-header" data-scrolled={headerScrolled}>
         <div className="header-inner max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="header-brand" aria-hidden="true" />
-
           <nav className="header-nav" aria-label={lang === 'ro' ? 'Navigație principală' : 'Main navigation'}>
             {navItems.map((item) => (
               <a
@@ -609,9 +610,9 @@ export default function App() {
         {/* 1. HERO SECTION — Modern Developer Intro */}
         <section id="hero" className="scroll-mt-28">
           <FadeInView delay={0.05} yOffset={14}>
-            <div className="hero-panel flex flex-col md:flex-row items-center justify-between gap-10 lg:gap-16 p-6 sm:p-10 lg:p-14">
+            <div className="hero-panel">
               
-              <div className="hero-copy w-full max-w-xl space-y-7 text-center md:text-left">
+              <div className="hero-copy w-full space-y-6 text-center md:text-left">
 
                 {/* Name & Title */}
                 <div className="space-y-3">
@@ -631,49 +632,44 @@ export default function App() {
                 </p>
 
                 {/* Action Buttons */}
-                <div className="hero-actions space-y-3 pt-2 text-sm">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center md:justify-start gap-3">
-                    <motion.a
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      href="#contact"
-                      className="inline-flex min-h-12 w-full sm:w-auto justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-cyan-300 hover:from-cyan-300 hover:to-cyan-200 text-slate-950 font-bold transition-all shadow-[0_18px_40px_-18px_rgba(34,211,238,0.9)] items-center gap-2"
+                <div className="hero-actions space-y-2 pt-1 text-sm">
+                  <div className="grid grid-cols-2 sm:flex sm:items-center justify-center md:justify-start gap-3">
+                    <a
+                      href="#proiecte"
+                      className="inline-flex min-h-12 min-w-0 justify-center px-3 sm:px-5 py-3 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-semibold transition-colors items-center gap-2"
                     >
-                      <Mail className="w-4 h-4" aria-hidden="true" />
-                      <span>{lang === 'ro' ? 'Contactează-mă' : 'Get in touch'}</span>
-                    </motion.a>
+                      <ArrowUpRight className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      <span>{lang === 'ro' ? 'Vezi proiectele' : 'View projects'}</span>
+                    </a>
 
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                    <button
                       ref={cvTriggerRef}
                       onClick={() => setShowCv(true)}
-                      className="inline-flex min-h-12 w-full sm:w-auto justify-center px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] hover:border-cyan-400/60 hover:bg-white/[0.06] text-zinc-100 transition-colors items-center gap-2 text-xs font-semibold shadow-[0_12px_30px_-22px_rgba(103,232,249,0.8)]"
+                      className="inline-flex min-h-12 min-w-0 justify-center px-3 sm:px-4 py-3 rounded-lg border border-zinc-300 dark:border-white/15 hover:bg-zinc-100 dark:hover:bg-white/[0.05] text-zinc-700 dark:text-zinc-200 transition-colors items-center gap-2 font-semibold"
                     >
-                      <FileText className="w-4 h-4 text-cyan-300" aria-hidden="true" />
+                      <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
                       <span>{lang === 'ro' ? 'Descarcă CV' : 'Download CV'}</span>
-                    </motion.button>
+                    </button>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                    <motion.a
-                      whileHover={{ scale: 1.02 }}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-2 text-zinc-500 dark:text-zinc-400">
+                    <a
                       href="https://mail.google.com/mail/?view=cm&fs=1&to=stansabin575@gmail.com&su=Hello%20Sabin&body=Hi%20Sabin%2C%0A%0AI%20wanted%20to%20reach%20out%20about%20..."
                       target="_blank"
                       rel="noreferrer"
-                      className="hero-email group inline-flex min-h-11 max-w-full items-center justify-center rounded-lg border border-white/10 bg-slate-900/40 px-3 py-2 text-xs font-mono text-slate-200 transition-colors hover:border-cyan-400/60 hover:text-cyan-200"
+                      className="hero-email inline-flex min-h-11 max-w-full items-center justify-center py-2 text-xs font-mono transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
                       aria-label={lang === 'ro' ? 'Trimite email la stansabin575@gmail.com' : 'Email stansabin575@gmail.com'}
                       title="Trimite email direct pe Gmail"
                     >
                       <span className="break-all">stansabin575@gmail.com</span>
-                    </motion.a>
+                    </a>
 
-                    <div className="flex items-center gap-1 text-zinc-400">
+                    <div className="flex items-center">
                     <a
                       href="https://github.com/StanSabin10"
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/8 rounded-xl transition-colors"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white transition-colors"
                       aria-label="GitHub"
                       title="GitHub"
                     >
@@ -683,7 +679,7 @@ export default function App() {
                       href="https://www.linkedin.com/in/sabin-stan-7521aa336/?isSelfProfile=true"
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/8 rounded-xl transition-colors"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-zinc-900 dark:hover:text-white transition-colors"
                       aria-label="LinkedIn"
                       title="LinkedIn"
                     >
@@ -696,23 +692,15 @@ export default function App() {
               </div>
 
               {/* Developer Portrait */}
-              <motion.div
-                className="hero-portrait relative shrink-0 w-full max-w-[210px] sm:max-w-[250px] md:max-w-[275px] lg:max-w-[300px]"
-              >
-                {/* Luminous aura backlight halo */}
-                <div className="absolute -inset-4 bg-gradient-to-tr from-cyan-500/16 via-indigo-500/12 to-emerald-500/10 rounded-3xl blur-2xl opacity-70 -z-10" />
-
-                <div className="portrait-frame aspect-[4/5] rounded-3xl overflow-hidden border border-zinc-200/70 dark:border-white/12 bg-zinc-950 shadow-2xl relative group">
-                  <motion.img
-                    src={profilePhoto}
-                    alt="Sabin Stan"
-                    initial={{ filter: 'grayscale(35%) saturate(0.9)' }}
-                    animate={{ filter: 'grayscale(0%) saturate(1.08) contrast(1.04)' }}
-                    transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full object-cover transition-all duration-2000 ease-out"
-                  />
-                </div>
-              </motion.div>
+              <div className="hero-portrait">
+                <img
+                  src={profilePhoto}
+                  alt="Sabin Stan"
+                  width={1247}
+                  height={1261}
+                  className="relative block w-full h-auto object-contain object-bottom"
+                />
+              </div>
 
             </div>
           </FadeInView>
