@@ -122,7 +122,7 @@ const STACK_DATA = [
     title: { ro: 'Frontend Engineering', en: 'Frontend Engineering' },
     desc: { ro: 'Interfețe rapide, fluide și accesibile.', en: 'Fast, fluid, and accessible interfaces.' },
     icon: Layers,
-    items: ['React 19', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML5', 'CSS3']
+    items: ['React 19', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML5 & CSS3']
   },
   {
     id: 'backend',
@@ -271,6 +271,53 @@ function ProjectCard3D({ project, lang }: { project: Project; lang: Language }) 
           ))}
         </div>
       </motion.div>
+    </div>
+  );
+}
+
+function StackTechCard({ category, lang }: { category: (typeof STACK_DATA)[number]; lang: Language }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 220, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 220, damping: 20 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [4, -4]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-4, 4]);
+  const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ['0%', '100%']);
+  const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ['0%', '100%']);
+  const glareBg = useMotionTemplate`radial-gradient(380px circle at ${glareX} ${glareY}, rgba(6, 182, 212, 0.1), transparent 72%)`;
+  const Icon = category.icon;
+
+  return (
+    <div className="stack-card-perspective">
+      <motion.article
+        onMouseMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          x.set((event.clientX - rect.left) / rect.width - 0.5);
+          y.set((event.clientY - rect.top) / rect.height - 0.5);
+        }}
+        onMouseLeave={() => {
+          x.set(0);
+          y.set(0);
+        }}
+        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        whileHover={{ scale: 1.01, y: -2 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className={`stack-card${category.id === 'frontend' ? ' stack-card-featured' : ''}`}
+      >
+        <motion.span className="stack-card-glare" aria-hidden="true" style={{ background: glareBg }} />
+        <div className="stack-card-heading">
+          <div className="stack-category-icon" aria-hidden="true"><Icon /></div>
+          <h3>{category.title[lang]}</h3>
+        </div>
+        <ul className="stack-list">
+          {category.items.map((tech) => (
+            <li key={tech} className="stack-tech">
+              <span className="stack-tech-icon" aria-hidden="true"><TechIcon name={tech} /></span>
+              <span>{tech}</span>
+            </li>
+          ))}
+        </ul>
+      </motion.article>
     </div>
   );
 }
@@ -731,111 +778,74 @@ export default function App() {
         </section>
 
         {/* 3. STACK TEHNOLOGIC (Skills) */}
-        <section id="tehnologii" className="scroll-mt-28 space-y-10 sm:space-y-12">
-          <FadeInView delay={0.06}>
-            <div className="section-heading">
-              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
-                <Layers className="w-3.5 h-3.5" />
-                <span>{lang === 'ro' ? 'Competențe Cheie' : 'Technical Proficiency'}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white">
-                {lang === 'ro' ? 'Stack tehnologic' : 'Skills & Technologies'}
-              </h2>
+        <section id="tehnologii" className="stack-section scroll-mt-28">
+          <div className="stack-heading">
+            <div className="stack-eyebrow">
+              <Layers aria-hidden="true" />
+              <span>{lang === 'ro' ? 'Competențe Cheie' : 'Technical Proficiency'}</span>
             </div>
-          </FadeInView>
+            <h2 className="stack-title">
+              {lang === 'ro' ? 'Stack tehnologic' : 'Skills & Technologies'}
+            </h2>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-            {STACK_DATA.map((cat, idx) => {
-              const IconComp = cat.icon;
-              return (
-                <FadeInView key={cat.id} delay={0.06 + idx * 0.05} className="h-full">
-                  <div className="bento-card glow-card p-5 sm:p-6 rounded-2xl hover-lift flex flex-col justify-between h-full space-y-5 transition-all duration-300">
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 font-bold text-zinc-900 dark:text-white text-base">
-                        <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-                          <IconComp className="w-4 h-4" />
-                        </div>
-                        <span>{cat.title[lang]}</span>
-                      </div>
-
-                      {/* Flex-Wrap Badges */}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {cat.items.map((tech) => (
-                          <div 
-                            key={tech} 
-                            className="inline-flex items-center gap-1.5 text-xs text-zinc-700 dark:text-zinc-300 px-2.5 py-1.5 rounded-xl bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/50 dark:border-zinc-800/50 hover:border-indigo-500/30 transition-colors font-medium"
-                          >
-                            <TechIcon name={tech} className="w-3.5 h-3.5 shrink-0" />
-                            <span>{tech}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-                </FadeInView>
-              );
-            })}
+          <div className="stack-grid">
+            {STACK_DATA.map((category) => (
+              <StackTechCard key={category.id} category={category} lang={lang} />
+            ))}
           </div>
         </section>
 
         {/* 4. EXPERIENȚĂ & EDUCAȚIE */}
-        <section id="experienta" className="scroll-mt-28 space-y-8 sm:space-y-10">
-          <FadeInView delay={0.06}>
-            <div className="section-heading">
-              <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>{lang === 'ro' ? 'Parcursul meu' : 'My Journey'}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white">
-                {lang === 'ro' ? 'Experiență & Studii' : 'Experience & Education'}
-              </h2>
+        <section id="experienta" className="scroll-mt-28">
+          <div className="section-heading">
+            <div className="section-eyebrow text-indigo-600 dark:text-indigo-400">
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>{lang === 'ro' ? 'Parcursul meu' : 'My Journey'}</span>
             </div>
-          </FadeInView>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white">
+              {lang === 'ro' ? 'Experiență & Studii' : 'Experience & Education'}
+            </h2>
+          </div>
 
           <div className="experience-list">
-            <FadeInView delay={0.08}>
-              <article className="experience-entry">
-                <div className="experience-content">
-                  <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">Full-Stack Web Development</h3>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    {lang === 'ro' ? 'Freelance & Proiecte Personale' : 'Personal Projects & Freelance'}
-                  </p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4 max-w-2xl">
-                    {lang === 'ro'
-                      ? 'Dezvolt aplicații web moderne având la bază HTML, CSS și JavaScript. În prezent aprofundez React pentru crearea de interfețe dinamice, iar pe partea de backend învăț Next.js, gestiunea bazelor de date și integrarea modelelor de Inteligență Artificială (AI).'
-                      : 'Building modern web applications grounded in HTML, CSS, and JavaScript. Currently expanding my expertise in React for dynamic frontend UIs, while focusing on Next.js, database systems, and AI integrations on the backend.'}
-                  </p>
-                  <p className="experience-topics">
-                    {lang === 'ro'
-                      ? 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Baze de date  ·  Integrare AI'
-                      : 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Databases  ·  AI integration'}
-                  </p>
-                </div>
-              </article>
-            </FadeInView>
+            <article className="experience-entry">
+              <div className="experience-content">
+                <h3 className="experience-title">Full-Stack Web Development</h3>
+                <p className="experience-subtitle">
+                  {lang === 'ro' ? 'Freelance & Proiecte Personale' : 'Personal Projects & Freelance'}
+                </p>
+                <p className="experience-description">
+                  {lang === 'ro'
+                    ? 'Dezvolt aplicații web moderne având la bază HTML, CSS și JavaScript. În prezent aprofundez React pentru crearea de interfețe dinamice, iar pe partea de backend învăț Next.js, gestiunea bazelor de date și integrarea modelelor de Inteligență Artificială (AI).'
+                    : 'Building modern web applications grounded in HTML, CSS, and JavaScript. Currently expanding my expertise in React for dynamic frontend UIs, while focusing on Next.js, database systems, and AI integrations on the backend.'}
+                </p>
+                <p className="experience-topics">
+                  {lang === 'ro'
+                    ? 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Baze de date  ·  Integrare AI'
+                    : 'HTML5  ·  CSS3  ·  JavaScript  ·  React  ·  Next.js  ·  Databases  ·  AI integration'}
+                </p>
+              </div>
+            </article>
 
-            <FadeInView delay={0.12}>
-              <article className="experience-entry">
-                <div className="experience-content">
-                  <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">
-                    {lang === 'ro' ? 'Specializarea Calculatoare (Anul 2)' : 'Computer Engineering (2nd Year)'}
-                  </h3>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Universitatea Petrol-Gaze din Ploiești (UPG)</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4 max-w-2xl">
-                    {lang === 'ro'
-                      ? 'Student în anul 2 la UPG Ploiești, domeniul Calculatoare. Parcurg un program academic axat pe principiile fundamentale ale informaticii, structuri de date, algoritmi, arhitectura sistemelor de calcul și rețele.'
-                      : '2nd-year Computer Engineering student at Petroleum-Gas University of Ploiești (UPG). Developing a strong theoretical and practical foundation in computer science, data structures, algorithms, system architecture, and networking.'}
-                  </p>
-                  <p className="experience-topics">
-                    {lang === 'ro'
-                      ? 'Structuri de date  ·  Algoritmi  ·  Arhitectura calculatoarelor  ·  Programare & rețele'
-                      : 'Data structures  ·  Algorithms  ·  Computer architecture  ·  Programming & networks'}
-                  </p>
-                </div>
-              </article>
-            </FadeInView>
+            <article className="experience-entry">
+              <div className="experience-content">
+                <h3 className="experience-title">
+                  {lang === 'ro' ? 'Specializarea Calculatoare (Anul 2)' : 'Computer Engineering (2nd Year)'}
+                </h3>
+                <p className="experience-subtitle">Universitatea Petrol-Gaze din Ploiești (UPG)</p>
+                <p className="experience-description">
+                  {lang === 'ro'
+                    ? 'Student în anul 2 la UPG Ploiești, domeniul Calculatoare. Parcurg un program academic axat pe principiile fundamentale ale informaticii, structuri de date, algoritmi, arhitectura sistemelor de calcul și rețele.'
+                    : '2nd-year Computer Engineering student at Petroleum-Gas University of Ploiești (UPG). Developing a strong theoretical and practical foundation in computer science, data structures, algorithms, system architecture, and networking.'}
+                </p>
+                <p className="experience-topics">
+                  {lang === 'ro'
+                    ? 'Structuri de date  ·  Algoritmi  ·  Arhitectura calculatoarelor  ·  Programare & rețele'
+                    : 'Data structures  ·  Algorithms  ·  Computer architecture  ·  Programming & networks'}
+                </p>
+              </div>
+            </article>
           </div>
         </section>
 
