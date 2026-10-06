@@ -37,6 +37,10 @@ import { TechIcon } from './components/TechIcon';
 
 // Authentic developer portrait
 import profilePhoto from '../123.png';
+import profilePhoto400Avif from './assets/hero/profile-400.avif';
+import profilePhoto800Avif from './assets/hero/profile-800.avif';
+import profilePhoto400Webp from './assets/hero/profile-400.webp';
+import profilePhoto800Webp from './assets/hero/profile-800.webp';
 
 type Language = 'ro' | 'en';
 type Theme = 'dark' | 'light';
@@ -740,13 +744,28 @@ export default function App() {
 
               {/* Developer Portrait */}
               <div className="hero-portrait">
-                <img
-                  src={profilePhoto}
-                  alt="Sabin Stan"
-                  width={1247}
-                  height={1261}
-                  className="relative block w-full h-auto object-contain object-bottom"
-                />
+                <picture>
+                  <source
+                    type="image/avif"
+                    srcSet={`${profilePhoto400Avif} 400w, ${profilePhoto800Avif} 800w`}
+                    sizes="(max-width: 767px) 220px, 432px"
+                  />
+                  <source
+                    type="image/webp"
+                    srcSet={`${profilePhoto400Webp} 400w, ${profilePhoto800Webp} 800w`}
+                    sizes="(max-width: 767px) 220px, 432px"
+                  />
+                  <img
+                    src={profilePhoto}
+                    alt="Sabin Stan"
+                    width={1247}
+                    height={1261}
+                    sizes="(max-width: 767px) 220px, 432px"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="relative block w-full h-auto object-contain object-bottom"
+                  />
+                </picture>
               </div>
 
             </div>
